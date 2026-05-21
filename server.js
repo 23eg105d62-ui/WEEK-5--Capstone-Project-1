@@ -6,11 +6,13 @@ import { commonRouter } from "./APIS/CommonApi.js";
 import cookieParser from "cookie-parser";
 import { adminRoute } from "./APIS/AdminApi.js";
 import { authorRoute } from "./APIS/AuthorApi.js";
-
+import cors from "cors";
 config(); //process.env
 
 //Create express application
 const app = exp();
+//use cors middleware
+app.use(cors({ origin: "http://localhost:5173", credentials: true }))
 //add body parser middleware
 app.use(exp.json());
 //add cookie parser middleware
@@ -46,10 +48,51 @@ app.use((req, res, next) => {
   res.json({ message: `${req.url}Invalid path` })
 })
 
-//error handling middleware
 app.use((err, req, res, next) => {
-  console.log("err:", err)
-  const status = err.status || 500;
-  const message = err.message || "Internal Server Error";
-  res.status(status).json({ message })
+
+  console.log("Error name:", err.name);
+  console.log("Error code:", err.code);
+  console.log("Full error:", err);
+
+  // mongoose validation error
+  if (err.name === "ValidationError") {
+    return res.status(400).json({
+      message: "error occurred",
+      error: err.message,
+    });
+  }
+
+  // mongoose cast error
+  if (err.name === "CastError") {
+    return res.status(400).json({
+      message: "error occurred",
+      error: err.message,
+    });
+  }
+
+  const errCode = err.code ?? err.cause?.code ?? err.errorResponse?.code;
+  const keyValue = err.keyValue ?? err.cause?.keyValue ?? err.errorResponse?.keyValue;
+
+  if (errCode === 11000) {
+    const field = Object.keys(keyValue)[0];
+    const value = keyValue[field];
+    return res.status(409).json({
+      message: "error occurred",
+      error: `${field} "${value}" already exists`,
+    });
+  }
+
+  // ✅ HANDLE CUSTOM ERRORS
+  if (err.status) {
+    return res.status(err.status).json({
+      message: "error occurred",
+      error: err.message,
+    });
+  }
+
+  // default server error
+  res.status(500).json({
+    message: "error occurred",
+    error: "Server side error",
+  });
 });
