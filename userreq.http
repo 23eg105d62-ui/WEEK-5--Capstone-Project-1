@@ -1,0 +1,34 @@
+### User Register
+POST http://localhost:4000/user-api/users
+Content-Type: application/json
+
+{
+  "firstName": "Janice",
+  "lastName": "Gould",
+  "email": "janice.user@example.com",
+  "password": "Jan@12345"
+}
+
+### User Login
+POST http://localhost:4000/common-api/login
+Content-Type: application/json
+
+{
+  "email": "janice.user@example.com",
+  "password": "Jan@12345"
+ 
+}
+### Read all articles (USER)
+GET http://localhost:4000/user-api/articles
+### Logout
+GET http://localhost:4000/common-api/logout
+
+### Add comment to an article (USER)
+PUT http://localhost:4000/user-api/articles
+Content-Type: application/json
+
+{
+  "user":"698d2b0210353dc78e6e6e15",
+  "articleId":"698d3a41ba3c49843f1146e5",
+  "comment":"This is a comment on the article."
+}

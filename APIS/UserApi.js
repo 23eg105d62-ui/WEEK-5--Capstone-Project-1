@@ -17,49 +17,35 @@ userRoute.post("/users", async (req, res) => {
 
 
 //Read all articles(protected route)
-userRoute.get("/articles", verifyToken, async (req, res) => {
-    //get all articles from the database
-    const articles = await ArticleModel.find().populate("author", "firstName lastName email");
-
-    //Send response 
-    //Payload ---> articles array
-    res.status(200).json({message: "All articles",payload: articles});
+userRoute.get("/articles", verifyToken("USER"), async (req, res) => {
+  //get all articles from the database
+  const articles = await ArticleModel.find({isArticleActive:true}).populate("author", "firstName lastName email");
+  //Send response 
+  //Payload ---> articles array
+  res.status(200).json({ message: "All articles", payload: articles });
 
 });
 
 //Add comment to an article(protected route)
+userRoute.put("/articles", verifyToken("USER"), async (req, res) => {
 
-userRoute.post("/articles/:articleId/comments", verifyToken, async (req, res) => {
-  
-    //get articleId from URL parameters
-    
-    const { articleId } = req.params;
+  const { user, articleId, comment } = req.body;
+console.log(req.user)
+if(user!==req.user.userId){
+  return res.status(403).json({message: "Forbidden. You can only comment using your own user ID"})
+}
+  let articleComment = await ArticleModel.findOneAndUpdate(
+    {_id:articleId,isArticleActive:true},
+    { $push: { comments: { user, comment } } },
+    { new: true, runValidators: true }
+  );
 
-    //get comment text from request body
-    
-    const { comment } = req.body;
+  if (!articleComment) {
+    return res.status(404).json({ message: "Article not found" });
+  }
 
-    //check if  that comment is not empty 
-
-    if (!comment  === "") {
-      return res.status(400).json({ message: "Comment cannot be empty" });
-    }
-
-    //Find article by its articleId
-    //Update it by pushing a new comment to the comments array
-   
-    const updatedArticle = await ArticleModel.findByIdAndUpdate(articleId,
-      {$push: {comments: {userId: req.user.userId, comment: comment, }}},
-      { new: true }
-    );
-
-    //Check if article was found and updated
-    if (!updatedArticle) {
-      return res.status(404).json({ message: "Article not found" });
-    }
-
-    //Send  response
-    
-    res.status(200).json({ message: "Comment added", payload: updatedArticle});
-  
+  res.status(200).json({
+    message: "Comment added",
+    payload: articleComment
+  });
 });

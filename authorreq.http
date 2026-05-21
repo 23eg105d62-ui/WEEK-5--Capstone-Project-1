@@ -1,0 +1,63 @@
+### Author Register
+POST http://localhost:4000/author-api/users
+Content-Type: application/json
+
+{
+  "firstName": "Steve",
+  "lastName": "Rogers",
+  "email": "steve.rogers@example.com",
+  "password": "steve@12345",
+  "profileImageUrl": "https://example.com/avatars/author.png"
+}
+### Author Login
+POST http://localhost:4000/common-api/login
+Content-Type: application/json
+
+{
+  "email": "steve.rogers@example.com",
+  "password": "steve@12345"
+  
+}
+
+### Create article (AUTHOR)
+POST http://localhost:4000/author-api/articles
+Content-Type: application/json
+
+{
+  "author":"69afe64b234de83f473abf12",
+  "title":"Web development trends in 2026",
+  "category":"Programming",
+  "content":"content of test4 article"
+}
+
+###Read articles of a author
+GET http://localhost:4000/author-api/articles/698d39deba3c49843f1146df
+
+### Update article (AUTHOR)
+PUT http://localhost:4000/author-api/articles
+Content-Type: application/json
+
+{
+  "author":"698d39acba3c49843f1146dd",
+  "articleId":"698d3a41ba3c49843f1146e5",
+  "title":"test2 article updated",
+  "category":"programming",
+  "content":"content of test2 article updated"
+}
+### Author Register
+POST http://localhost:4000/author-api/users
+Content-Type: application/json
+
+{
+  "firstName": "Ana",
+  "lastName": "White",
+  "email": "white.ana@example.com",
+  "password": "Ana@12345",
+  "profileImageUrl": "https://example.com/avatars/author.png"
+}
+
+### Delete(soft delete) article (AUTHOR)
+PATCH http://localhost:4000/author-api/articles/6989750220ce5bf826ec4f7e/status
+Content-Type: application/json
+
+{ "isArticleActive": true }
